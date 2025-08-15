@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>العملاء والمديونية</title>
+	<link href="/static/tailwind.css" rel="stylesheet" />
+</head>
+<body class="bg-gray-50 min-h-screen p-4">
+	<h1 class="text-2xl font-bold mb-4">العملاء والمديونية</h1>
+	<div class="flex gap-2 mb-4">
+		<input id="name" placeholder="اسم العميل" class="border rounded px-3 py-2" />
+		<input id="phone" placeholder="هاتف" class="border rounded px-3 py-2" />
+		<input id="address" placeholder="عنوان" class="border rounded px-3 py-2" />
+		<button id="add" class="px-3 py-2 bg-green-600 text-white rounded">إضافة</button>
+	</div>
+	<table class="w-full text-sm border">
+		<thead class="bg-gray-100"><tr><th class="p-2">اسم</th><th class="p-2">هاتف</th><th class="p-2">عنوان</th><th class="p-2">المديونية</th></tr></thead>
+		<tbody id="rows"></tbody>
+	</table>
+	<script>
+	async function load(){
+		const res = await fetch('/api/customers/');
+		const data = await res.json();
+		document.getElementById('rows').innerHTML = data.items.map(c=>`<tr class="border-t"><td class="p-2">${c.name}</td><td class="p-2">${c.phone||''}</td><td class="p-2">${c.address||''}</td><td class="p-2">${c.total_debt.toFixed(2)}</td></tr>`).join('');
+	}
+	document.getElementById('add').addEventListener('click', async ()=>{
+		const fd = new FormData();
+		fd.append('name', document.getElementById('name').value);
+		fd.append('phone', document.getElementById('phone').value);
+		fd.append('address', document.getElementById('address').value);
+		const res = await fetch('/api/customers/', { method:'POST', body: fd });
+		if(res.ok){ document.getElementById('name').value=''; document.getElementById('phone').value=''; document.getElementById('address').value=''; load(); }
+	});
+	load();
+	</script>
+</body>
+</html>

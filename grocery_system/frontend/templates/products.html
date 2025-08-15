@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>المنتجات</title>
+	<link href="/static/tailwind.css" rel="stylesheet" />
+</head>
+<body class="bg-gray-50 min-h-screen p-4">
+	<h1 class="text-2xl font-bold mb-4">المنتجات</h1>
+	<div class="flex gap-2 mb-3">
+		<input id="q" placeholder="بحث" class="border rounded px-3 py-2" />
+		<button id="search" class="px-3 py-2 bg-blue-600 text-white rounded">بحث</button>
+	</div>
+	<table class="w-full text-sm border">
+		<thead class="bg-gray-100"><tr><th class="p-2">اسم</th><th class="p-2">باركود</th><th class="p-2">سعر قطاعي</th><th class="p-2">سعر جملة</th><th class="p-2">مخزون</th></tr></thead>
+		<tbody id="rows"></tbody>
+	</table>
+	<script>
+	async function load(){
+		const q = document.getElementById('q').value;
+		const res = await fetch('/api/products/?q=' + encodeURIComponent(q||''));
+		const data = await res.json();
+		document.getElementById('rows').innerHTML = data.items.map(p=>`<tr class="border-t"><td class="p-2">${p.name}</td><td class="p-2">${p.barcode||''}</td><td class="p-2">${p.unit_price_retail.toFixed(2)}</td><td class="p-2">${p.unit_price_wholesale.toFixed(2)}</td><td class="p-2">${p.stock_quantity.toFixed(3)}</td></tr>`).join('');
+	}
+	document.getElementById('search').addEventListener('click', load);
+	load();
+	</script>
+</body>
+</html>
