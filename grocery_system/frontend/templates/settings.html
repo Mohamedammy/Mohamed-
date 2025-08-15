@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>الإعدادات</title>
+	<link href="/static/tailwind.css" rel="stylesheet" />
+</head>
+<body class="bg-gray-50 min-h-screen p-4">
+	<h1 class="text-2xl font-bold mb-4">الإعدادات</h1>
+	<div class="max-w-xl bg-white border rounded p-4 space-y-3">
+		<div>
+			<label class="block mb-1">مفتاح JWT</label>
+			<input id="jwt" class="w-full border rounded px-3 py-2" />
+		</div>
+		<div>
+			<label class="block mb-1">نوع الطابعة</label>
+			<select id="ptype" class="w-full border rounded px-3 py-2"><option value="escpos">ESC/POS</option></select>
+		</div>
+		<div>
+			<label class="block mb-1">جهاز الطابعة</label>
+			<input id="pdev" placeholder="USB/Serial device path" class="w-full border rounded px-3 py-2" />
+		</div>
+		<div>
+			<label class="block mb-1">منفذ الميزان</label>
+			<input id="sport" placeholder="/dev/ttyUSB0" class="w-full border rounded px-3 py-2" />
+		</div>
+		<button id="save" class="px-4 py-2 bg-green-600 text-white rounded">حفظ</button>
+		<p id="msg" class="text-center text-red-600"></p>
+	</div>
+	<script>
+	(async function(){
+		const res = await fetch('/api/settings/');
+		if(res.ok){ const d = await res.json(); document.getElementById('jwt').value=d.jwt_secret||''; document.getElementById('ptype').value=d.printer_type||'escpos'; document.getElementById('pdev').value=d.printer_device||''; document.getElementById('sport').value=d.scale_port||''; localStorage.setItem('scale_port', d.scale_port||''); }
+	})();
+	document.getElementById('save').addEventListener('click', async ()=>{
+		const fd = new FormData();
+		fd.append('jwt_secret', document.getElementById('jwt').value);
+		fd.append('printer_type', document.getElementById('ptype').value);
+		fd.append('printer_device', document.getElementById('pdev').value);
+		fd.append('scale_port', document.getElementById('sport').value);
+		const res = await fetch('/api/settings/', { method:'POST', body: fd });
+		if(res.ok){ document.getElementById('msg').textContent='تم الحفظ'; localStorage.setItem('scale_port', document.getElementById('sport').value); }
+	});
+	</script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>تسجيل الدخول</title>
+	<link href="/static/tailwind.css" rel="stylesheet" />
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+	<div class="bg-white p-8 rounded shadow w-full max-w-md">
+		<h1 class="text-2xl font-bold text-center mb-6">تسجيل الدخول</h1>
+		<form method="post" action="/api/login" class="space-y-4">
+			<div>
+				<label class="block mb-1">اسم المستخدم</label>
+				<input name="username" class="w-full border rounded px-3 py-2" required />
+			</div>
+			<div>
+				<label class="block mb-1">كلمة المرور</label>
+				<input type="password" name="password" class="w-full border rounded px-3 py-2" required />
+			</div>
+			<button class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">دخول</button>
+		</form>
+		<p id="msg" class="text-center text-red-600 mt-3"></p>
+	</div>
+	<script>
+	const form = document.querySelector('form');
+	form.addEventListener('submit', async (e) => {
+		e.preventDefault();
+		const fd = new FormData(form);
+		const res = await fetch('/api/login', { method: 'POST', body: fd });
+		if (res.ok) { window.location = '/pos'; } else { document.getElementById('msg').textContent = 'فشل تسجيل الدخول'; }
+	});
+	</script>
+</body>
+</html>

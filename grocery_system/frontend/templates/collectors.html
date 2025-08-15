@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>المندوبون</title>
+	<link href="/static/tailwind.css" rel="stylesheet" />
+</head>
+<body class="bg-gray-50 min-h-screen p-4">
+	<h1 class="text-2xl font-bold mb-4">المندوبون</h1>
+	<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+		<div>
+			<h2 class="font-semibold mb-2">إضافة مندوب</h2>
+			<div class="space-y-2">
+				<input id="name" placeholder="الاسم" class="border rounded px-3 py-2 w-full" />
+				<input id="company" placeholder="الشركة" class="border rounded px-3 py-2 w-full" />
+				<input id="code" placeholder="رقم الموظف" class="border rounded px-3 py-2 w-full" />
+				<select id="ctype" class="border rounded px-3 py-2 w-full"><option value="percent">نسبة %</option><option value="fixed">مبلغ ثابت</option></select>
+				<input id="cval" type="number" step="0.01" placeholder="قيمة العمولة" class="border rounded px-3 py-2 w-full" />
+				<button id="add" class="px-3 py-2 bg-green-600 text-white rounded">حفظ</button>
+			</div>
+		</div>
+		<div>
+			<h2 class="font-semibold mb-2">قائمة المندوبين</h2>
+			<table class="w-full text-sm border"><thead class="bg-gray-100"><tr><th class="p-2">اسم</th><th class="p-2">شركة</th><th class="p-2">عمولة</th></tr></thead><tbody id="rows"></tbody></table>
+		</div>
+	</div>
+	<div class="mt-8">
+		<h2 class="font-semibold mb-2">تقرير اليوم</h2>
+		<button id="loadDaily" class="px-3 py-2 bg-blue-600 text-white rounded">تحميل</button>
+		<table class="w-full text-sm border mt-3"><thead class="bg-gray-100"><tr><th class="p-2">المندوب</th><th class="p-2">الإجمالي</th><th class="p-2">العمولة</th></tr></thead><tbody id="daily"></tbody></table>
+	</div>
+	<script>
+	async function loadCollectors(){
+		const res = await fetch('/api/collectors/');
+		const data = await res.json();
+		document.getElementById('rows').innerHTML = data.map(c=>`<tr class="border-t"><td class="p-2">${c.name}</td><td class="p-2">${c.company||''}</td><td class="p-2">${c.commission_type==='percent'? c.commission_value+'%': c.commission_value.toFixed(2)}</td></tr>`).join('');
+	}
+	document.getElementById('add').addEventListener('click', async ()=>{
+		const fd = new FormData();
+		fd.append('name', document.getElementById('name').value);
+		fd.append('company', document.getElementById('company').value);
+		fd.append('employee_code', document.getElementById('code').value);
+		fd.append('commission_type', document.getElementById('ctype').value);
+		fd.append('commission_value', document.getElementById('cval').value);
+		const res = await fetch('/api/collectors/', { method:'POST', body: fd });
+		if(res.ok){ loadCollectors(); }
+	});
+	document.getElementById('loadDaily').addEventListener('click', async ()=>{
+		const res = await fetch('/api/collectors/daily');
+		const data = await res.json();
+		document.getElementById('daily').innerHTML = data.map(r=>`<tr class="border-t"><td class="p-2">#${r.collector_id}</td><td class="p-2">${r.total.toFixed(2)}</td><td class="p-2">${r.commission.toFixed(2)}</td></tr>`).join('');
+	});
+	loadCollectors();
+	</script>
+</body>
+</html>
