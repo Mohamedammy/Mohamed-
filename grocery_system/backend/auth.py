@@ -75,12 +75,12 @@ async def login(response: Response, form_data: OAuth2PasswordRequestForm = Depen
 	response.set_cookie(
 		key="access_token",
 		value=token,
-		http_only=True,
+		httponly=True,
 		samesite="lax",
 		secure=False,
 		max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
 	)
-	return {"message": "تم تسجيل الدخول", "role": user.role}
+	return {"message": "تم تسجيل الدخول", "role": user.role.value}
 
 
 @router.post("/logout")
